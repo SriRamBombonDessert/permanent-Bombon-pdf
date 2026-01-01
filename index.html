@@ -64,10 +64,11 @@ async function upload() {
 
   const file = fileInput.files[0];
 
-  if (file.size > 50 * 1024 * 1024) {
-    msg.innerText = "File must be ≤ 50MB";
-    return;
-  }
+if (file.size > 7 * 1024 * 1024) {
+  msg.innerText = "File must be ≤ 7MB";
+  return;
+}
+
 
   msg.innerText = "Reading file...";
 
@@ -104,5 +105,6 @@ async function upload() {
 
 </body>
 </html>
+
 
 

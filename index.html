@@ -74,7 +74,7 @@ async function upload() {
 
   msg.innerText = "Uploading...";
 
-  const res = await fetch("/.netlify/functions/upload", {
+  const res = await fetch("/.netlify/functions/githubUpload", {
     method: "POST",
     body: formData
   });
@@ -86,3 +86,4 @@ async function upload() {
 
 </body>
 </html>
+

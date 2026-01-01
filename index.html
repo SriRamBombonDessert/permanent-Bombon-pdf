@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Upload PDF</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      height: 100vh;
+      align-items: center;
+      justify-content: center;
+    }
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      width: 350px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,.1);
+    }
+    input[type="file"] {
+      margin: 20px 0;
+    }
+    button {
+      padding: 10px 20px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #1d4ed8;
+    }
+    .msg {
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Upload PDF</h2>
+  <p>Max size: 50 MB</p>
+
+  <input type="file" id="file" accept="application/pdf" />
+  <br />
+  <button onclick="upload()">Upload</button>
+
+  <div class="msg" id="msg"></div>
+</div>
+
+<script>
+async function upload() {
+  const fileInput = document.getElementById("file");
+  const msg = document.getElementById("msg");
+
+  if (!fileInput.files.length) {
+    msg.innerText = "Please select a PDF file";
+    return;
+  }
+
+  const file = fileInput.files[0];
+
+  if (file.size > 50 * 1024 * 1024) {
+    msg.innerText = "File must be ≤ 50MB";
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  msg.innerText = "Uploading...";
+
+  const res = await fetch("/.netlify/functions/upload", {
+    method: "POST",
+    body: formData
+  });
+
+  const data = await res.json();
+  msg.innerText = data.message;
+}
+</script>
+
+</body>
+</html>

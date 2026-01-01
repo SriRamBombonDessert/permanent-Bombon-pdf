@@ -2,395 +2,239 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Upload PDF</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
-    :root {
-      --primary: #3b82f6;
-      --primary-dark: #2563eb;
-      --success: #10b981;
-      --error: #ef4444;
-      --gray: #6b7280;
-      --light: #f3f4f6;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
     body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
-      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       display: flex;
+      height: 100vh;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      margin: 0;
     }
 
     .card {
       background: white;
       padding: 40px;
       border-radius: 16px;
-      width: 100%;
-      max-width: 420px;
+      width: 400px;
       text-align: center;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-      animation: fadeIn 0.8s ease-out;
+      transition: transform 0.3s ease;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
+    .card:hover {
+      transform: translateY(-5px);
     }
 
     h2 {
-      font-size: 28px;
       margin-bottom: 24px;
-      color: #1e293b;
+      color: #333;
+      font-weight: 600;
     }
 
     .upload-area {
-      border: 2px dashed var(--primary);
+      border: 3px dashed #bbb;
       border-radius: 12px;
       padding: 40px 20px;
-      cursor: pointer;
+      margin: 20px 0;
       transition: all 0.3s ease;
-      position: relative;
-      background: #f8faff;
+      background: #f9f9f9;
+      cursor: pointer;
     }
 
-    .upload-area:hover {
-      border-color: var(--primary-dark);
-      background: #eff6ff;
-    }
-
-    .upload-area.dragover {
-      border-color: var(--primary-dark);
-      background: #dbeafe;
+    .upload-area.drag-over {
+      border-color: #2563eb;
+      background: #eef2ff;
       transform: scale(1.02);
     }
 
-    .icon {
-      font-size: 48px;
-      color: var(--primary);
-      margin-bottom: 16px;
-      animation: float 3s infinite ease-in-out;
+    .upload-area p {
+      margin: 0 0 10px 0;
+      color: #666;
+      font-size: 1.1em;
     }
 
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
-
-    .upload-text {
-      font-size: 18px;
-      color: var(--gray);
-      margin-bottom: 8px;
-    }
-
-    .upload-subtext {
-      font-size: 14px;
-      color: #9ca3af;
+    .upload-area small {
+      color: #999;
+      font-size: 0.9em;
     }
 
     input[type="file"] {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-      opacity: 0;
-      cursor: pointer;
-    }
-
-    /* File preview section */
-    .file-preview {
-      margin-top: 20px;
-      padding: 16px;
-      background: #f0f9ff;
-      border-radius: 10px;
-      border: 1px solid #bae6fd;
       display: none;
-      align-items: center;
-      justify-content: space-between;
-      animation: slideUp 0.4s ease;
     }
 
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .file-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      text-align: left;
-    }
-
-    .file-icon {
-      font-size: 36px;
-      color: #dc2626;
-    }
-
-    .file-details h4 {
-      font-size: 16px;
-      color: #1e293b;
-      margin-bottom: 4px;
-    }
-
-    .file-details p {
-      font-size: 14px;
-      color: var(--gray);
-    }
-
-    .remove-file {
-      background: #ef4444;
-      color: white;
-      border: none;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 16px;
-      transition: background 0.3s;
-    }
-
-    .remove-file:hover {
-      background: #dc2626;
-    }
-
-    button#uploadBtn {
-      margin-top: 24px;
+    button {
       padding: 12px 32px;
-      background: var(--primary);
+      background: #2563eb;
       color: white;
       border: none;
       border-radius: 8px;
-      font-size: 16px;
-      font-weight: 500;
       cursor: pointer;
+      font-size: 1.1em;
+      font-weight: 500;
       transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
     }
 
-    button#uploadBtn:hover {
-      background: var(--primary-dark);
+    button:hover {
+      background: #1d4ed8;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(37, 99, 235, 0.3);
     }
 
-    button#uploadBtn:active {
-      transform: scale(0.98);
-    }
-
-    button#uploadBtn:disabled {
+    button:disabled {
       background: #9ca3af;
       cursor: not-allowed;
-    }
-
-    .msg {
-      margin-top: 24px;
-      font-size: 16px;
-      min-height: 24px;
-      font-weight: 500;
-    }
-
-    .msg.success {
-      color: var(--success);
-      animation: pulse 0.6s ease;
-    }
-
-    .msg.error {
-      color: var(--error);
-      animation: shake 0.5s ease;
-    }
-
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
-    }
-
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-8px); }
-      75% { transform: translateX(8px); }
+      transform: none;
     }
 
     .spinner {
-      display: inline-block;
+      display: none;
       width: 20px;
       height: 20px;
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid white;
+      border: 2px solid #ffffff;
+      border-top: 2px solid transparent;
       border-radius: 50%;
       animation: spin 1s linear infinite;
-      margin-right: 8px;
-      vertical-align: middle;
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
     }
 
     @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      0% { transform: translateY(-50%) rotate(0deg); }
+      100% { transform: translateY(-50%) rotate(360deg); }
+    }
+
+    .msg {
+      margin-top: 20px;
+      font-weight: 500;
+      min-height: 24px;
+      transition: color 0.3s ease;
+    }
+
+    .msg.success {
+      color: #16a34a;
+    }
+
+    .msg.error {
+      color: #dc2626;
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h2>Upload Your PDF</h2>
-    <div class="upload-area" id="uploadArea">
-      <i class="fas fa-cloud-upload-alt icon"></i>
-      <div class="upload-text">Drag & drop your PDF here</div>
-      <div class="upload-subtext">or click to browse (Max 7MB)</div>
-      <input type="file" id="file" accept="application/pdf" />
-    </div>
-
-    <!-- File preview -->
-    <div class="file-preview" id="filePreview">
-      <div class="file-info">
-        <i class="fas fa-file-pdf file-icon"></i>
-        <div class="file-details">
-          <h4 id="fileName">document.pdf</h4>
-          <p id="fileSize">0 KB</p>
-        </div>
-      </div>
-      <button class="remove-file" id="removeFile" title="Remove file">
-        <i class="fas fa-times"></i>
-      </button>
-    </div>
-
-    <button id="uploadBtn" disabled>Upload PDF</button>
-    <div class="msg" id="msg"></div>
+<div class="card">
+  <h2>Upload PDF</h2>
+  <div class="upload-area" id="upload-area">
+    <p>Drag & drop your PDF here</p>
+    <small>or click to select a file (max 7MB)</small>
+    <input type="file" id="file" accept="application/pdf" />
   </div>
+  <button onclick="upload()" id="upload-btn">Upload</button>
+  <div class="spinner" id="spinner"></div>
+  <div class="msg" id="msg"></div>
+</div>
 
-  <script>
-    const uploadArea = document.getElementById('uploadArea');
-    const fileInput = document.getElementById('file');
-    const uploadBtn = document.getElementById('uploadBtn');
-    const msg = document.getElementById('msg');
-    const filePreview = document.getElementById('filePreview');
-    const fileNameEl = document.getElementById('fileName');
-    const fileSizeEl = document.getElementById('fileSize');
-    const removeFileBtn = document.getElementById('removeFile');
+<script>
+async function upload() {
+  const fileInput = document.getElementById("file");
+  const msg = document.getElementById("msg");
+  const btn = document.getElementById("upload-btn");
+  const spinner = document.getElementById("spinner");
+  const uploadArea = document.getElementById("upload-area");
 
-    function formatFileSize(bytes) {
-      if (bytes === 0) return '0 Bytes';
-      const k = 1024;
-      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-      const i = Math.floor(Math.log(bytes) / Math.log(k));
-      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  msg.innerText = "";
+  msg.className = "msg";
+
+  if (!fileInput.files.length) {
+    msg.innerText = "Please select a PDF file";
+    msg.className = "msg error";
+    return;
+  }
+
+  const file = fileInput.files[0];
+
+  if (file.size > 7 * 1024 * 1024) {
+    msg.innerText = "File must be ≤ 7MB";
+    msg.className = "msg error";
+    return;
+  }
+
+  msg.innerText = "Reading file...";
+  btn.disabled = true;
+  spinner.style.display = "block";
+
+  const reader = new FileReader();
+  reader.onload = async () => {
+    const base64 = reader.result.split(",")[1];
+    msg.innerText = "Uploading...";
+
+    try {
+      const res = await fetch("/.netlify/functions/githubUpload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ file: base64 })
+      });
+
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+        msg.innerText = data.message || "Upload successful!";
+        msg.className = "msg success";
+      } catch {
+        msg.innerText = "Upload failed (invalid response)";
+        msg.className = "msg error";
+        console.error("Raw response:", text);
+      }
+    } catch (err) {
+      msg.innerText = "Upload failed (network error)";
+      msg.className = "msg error";
+      console.error(err);
+    } finally {
+      btn.disabled = false;
+      spinner.style.display = "none";
     }
+  };
 
-    function updateFilePreview() {
-      if (fileInput.files && fileInput.files.length > 0) {
-        const file = fileInput.files[0];
-        fileNameEl.textContent = file.name;
-        fileSizeEl.textContent = formatFileSize(file.size);
-        filePreview.style.display = 'flex';
-        uploadBtn.disabled = false;
-        uploadBtn.textContent = 'Upload PDF';
-      } else {
-        filePreview.style.display = 'none';
-        uploadBtn.disabled = true;
-        uploadBtn.textContent = 'Upload PDF';
-      }
-    }
+  reader.onerror = () => {
+    msg.innerText = "Failed to read file";
+    msg.className = "msg error";
+    btn.disabled = false;
+    spinner.style.display = "none";
+  };
 
-    function clearFile() {
-      fileInput.value = '';
-      updateFilePreview();
-      msg.innerHTML = '';
-    }
+  reader.readAsDataURL(file);
+}
 
-    // Event listeners
-    fileInput.addEventListener('change', updateFilePreview);
+// Drag & Drop enhancements (visual only)
+const uploadArea = document.getElementById("upload-area");
+const fileInput = document.getElementById("file");
 
-    removeFileBtn.addEventListener('click', clearFile);
+uploadArea.addEventListener("click", () => fileInput.click());
 
-    uploadArea.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      uploadArea.classList.add('dragover');
-    });
+uploadArea.addEventListener("dragover", (e) => {
+  e.preventDefault();
+  uploadArea.classList.add("drag-over");
+});
 
-    uploadArea.addEventListener('dragleave', () => {
-      uploadArea.classList.remove('dragover');
-    });
+uploadArea.addEventListener("dragleave", () => {
+  uploadArea.classList.remove("drag-over");
+});
 
-    uploadArea.addEventListener('drop', (e) => {
-      e.preventDefault();
-      uploadArea.classList.remove('dragover');
-      if (e.dataTransfer.files.length) {
-        fileInput.files = e.dataTransfer.files;
-        updateFilePreview();  // Critical fix: ensures button enables on drop
-      }
-    });
-
-    async function upload() {
-      if (!fileInput.files.length) {
-        msg.innerHTML = '<span class="error">Please select a PDF file</span>';
-        return;
-      }
-
-      const file = fileInput.files[0];
-
-      if (!file.type.includes('pdf')) {
-        msg.innerHTML = '<span class="error">Only PDF files are allowed</span>';
-        return;
-      }
-
-      if (file.size > 7 * 1024 * 1024) {
-        msg.innerHTML = '<span class="error">File must be ≤ 7MB</span>';
-        return;
-      }
-
-      // Disable button and show uploading state
-      uploadBtn.disabled = true;
-      uploadBtn.innerHTML = '<div class="spinner"></div>Uploading...';
-      msg.innerHTML = '<span><div class="spinner"></div>Reading file...</span>';
-
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const base64 = reader.result.split(",")[1];
-        msg.innerHTML = '<span><div class="spinner"></div>Uploading to server...</span>';
-
-        try {
-          const res = await fetch("/.netlify/functions/githubUpload", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ file: base64 })
-          });
-
-          const text = await res.text();
-          let data;
-          try {
-            data = JSON.parse(text);
-            msg.innerHTML = `<span class="success">${data.message || 'Upload successful!'}</span>`;
-            clearFile();  // Reset after success
-          } catch {
-            msg.innerHTML = '<span class="error">Upload failed (invalid response)</span>';
-            console.error("Raw response:", text);
-            uploadBtn.disabled = false;
-            uploadBtn.textContent = 'Upload PDF';
-          }
-        } catch (err) {
-          msg.innerHTML = '<span class="error">Upload failed. Please try again.</span>';
-          console.error(err);
-          uploadBtn.disabled = false;
-          uploadBtn.textContent = 'Upload PDF';
-        }
-      };
-
-      reader.onerror = () => {
-        msg.innerHTML = '<span class="error">Failed to read file</span>';
-        uploadBtn.disabled = false;
-        uploadBtn.textContent = 'Upload PDF';
-      };
-
-      reader.readAsDataURL(file);
-    }
-  </script>
+uploadArea.addEventListener("drop", (e) => {
+  e.preventDefault();
+  uploadArea.classList.remove("drag-over");
+  if (e.dataTransfer.files.length) {
+    fileInput.files = e.dataTransfer.files;
+  }
+});
+</script>
 </body>
 </html>

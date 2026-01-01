@@ -69,21 +69,40 @@ async function upload() {
     return;
   }
 
-  const formData = new FormData();
-  formData.append("file", file);
+  msg.innerText = "Reading file...";
 
-  msg.innerText = "Uploading...";
+  const reader = new FileReader();
 
-  const res = await fetch("/.netlify/functions/githubUpload", {
-    method: "POST",
-    body: formData
-  });
+  reader.onload = async () => {
+    // Extract BASE64 part only
+    const base64 = reader.result.split(",")[1];
 
-  const data = await res.json();
-  msg.innerText = data.message;
+    msg.innerText = "Uploading...";
+
+    const res = await fetch("/.netlify/functions/githubUpload", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        file: base64
+      })
+    });
+
+    const data = await res.json();
+    msg.innerText = data.message;
+  };
+
+  reader.onerror = () => {
+    msg.innerText = "Failed to read file";
+  };
+
+  reader.readAsDataURL(file);
 }
 </script>
 
+
 </body>
 </html>
+
 

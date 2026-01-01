@@ -90,8 +90,16 @@ if (file.size > 7 * 1024 * 1024) {
       })
     });
 
-    const data = await res.json();
-    msg.innerText = data.message;
+   const text = await res.text();
+try {
+  const data = JSON.parse(text);
+  msg.innerText = data.message;
+  console.log("Response:", data);
+} catch {
+  msg.innerText = "Upload failed (invalid response)";
+  console.error("Raw response:", text);
+}
+
   };
 
   reader.onerror = () => {
@@ -105,6 +113,7 @@ if (file.size > 7 * 1024 * 1024) {
 
 </body>
 </html>
+
 
 
 

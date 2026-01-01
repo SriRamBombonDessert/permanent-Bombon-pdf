@@ -67,6 +67,60 @@
       display: none;
     }
 
+    /* Selected file display */
+    .selected-file {
+      margin: 20px 0;
+      padding: 16px;
+      background: #f0f9ff;
+      border: 2px solid #0ea5e9;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .selected-file-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #0c4a6e;
+      font-weight: 500;
+    }
+
+    .file-icon {
+      width: 40px;
+      height: 40px;
+      background: #0ea5e9;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.4em;
+      font-weight: bold;
+    }
+
+    .remove-file {
+      background: none;
+      border: none;
+      font-size: 1.4em;
+      color: #dc2626;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 50%;
+      transition: all 0.2s;
+    }
+
+    .remove-file:hover {
+      background: #fee2e2;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     button {
       padding: 12px 32px;
       background: #2563eb;
@@ -131,24 +185,83 @@
 <body>
 <div class="card">
   <h2>Upload PDF</h2>
+  
   <div class="upload-area" id="upload-area">
     <p>Drag & drop your PDF here</p>
     <small>or click to select a file (max 7MB)</small>
     <input type="file" id="file" accept="application/pdf" />
   </div>
+
+  <!-- Selected file display (hidden by default) -->
+  <div class="selected-file" id="selected-file" style="display: none;">
+    <div class="selected-file-info">
+      <div class="file-icon">PDF</div>
+      <span id="file-name"></span>
+    </div>
+    <button type="button" class="remove-file" id="remove-file" title="Remove file">×</button>
+  </div>
+
   <button onclick="upload()" id="upload-btn">Upload</button>
   <div class="spinner" id="spinner"></div>
   <div class="msg" id="msg"></div>
 </div>
 
 <script>
-async function upload() {
-  const fileInput = document.getElementById("file");
-  const msg = document.getElementById("msg");
-  const btn = document.getElementById("upload-btn");
-  const spinner = document.getElementById("spinner");
-  const uploadArea = document.getElementById("upload-area");
+const fileInput = document.getElementById("file");
+const uploadArea = document.getElementById("upload-area");
+const selectedFileDiv = document.getElementById("selected-file");
+const fileNameSpan = document.getElementById("file-name");
+const removeFileBtn = document.getElementById("remove-file");
+const msg = document.getElementById("msg");
+const btn = document.getElementById("upload-btn");
+const spinner = document.getElementById("spinner");
 
+// Update UI when file is selected
+function updateFileDisplay() {
+  if (fileInput.files.length > 0) {
+    const file = fileInput.files[0];
+    fileNameSpan.textContent = file.name;
+    selectedFileDiv.style.display = "flex";
+    uploadArea.style.opacity = "0.6";
+  } else {
+    selectedFileDiv.style.display = "none";
+    uploadArea.style.opacity = "1";
+  }
+}
+
+// Remove selected file
+removeFileBtn.addEventListener("click", () => {
+  fileInput.value = "";
+  updateFileDisplay();
+  msg.innerText = "";
+  msg.className = "msg";
+});
+
+// Listen for file selection changes
+fileInput.addEventListener("change", updateFileDisplay);
+
+// Drag & Drop
+uploadArea.addEventListener("click", () => fileInput.click());
+
+uploadArea.addEventListener("dragover", (e) => {
+  e.preventDefault();
+  uploadArea.classList.add("drag-over");
+});
+
+uploadArea.addEventListener("dragleave", () => {
+  uploadArea.classList.remove("drag-over");
+});
+
+uploadArea.addEventListener("drop", (e) => {
+  e.preventDefault();
+  uploadArea.classList.remove("drag-over");
+  if (e.dataTransfer.files.length) {
+    fileInput.files = e.dataTransfer.files;
+    updateFileDisplay();
+  }
+});
+
+async function upload() {
   msg.innerText = "";
   msg.className = "msg";
 
@@ -212,29 +325,6 @@ async function upload() {
 
   reader.readAsDataURL(file);
 }
-
-// Drag & Drop enhancements (visual only)
-const uploadArea = document.getElementById("upload-area");
-const fileInput = document.getElementById("file");
-
-uploadArea.addEventListener("click", () => fileInput.click());
-
-uploadArea.addEventListener("dragover", (e) => {
-  e.preventDefault();
-  uploadArea.classList.add("drag-over");
-});
-
-uploadArea.addEventListener("dragleave", () => {
-  uploadArea.classList.remove("drag-over");
-});
-
-uploadArea.addEventListener("drop", (e) => {
-  e.preventDefault();
-  uploadArea.classList.remove("drag-over");
-  if (e.dataTransfer.files.length) {
-    fileInput.files = e.dataTransfer.files;
-  }
-});
 </script>
 </body>
 </html>

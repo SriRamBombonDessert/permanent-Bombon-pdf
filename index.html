@@ -4,9 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Upload PDF</title>
-  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
-  <!-- Font Awesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
     :root {
@@ -110,7 +108,64 @@
       cursor: pointer;
     }
 
-    button {
+    /* File preview section */
+    .file-preview {
+      margin-top: 20px;
+      padding: 16px;
+      background: #f0f9ff;
+      border-radius: 10px;
+      border: 1px solid #bae6fd;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      animation: slideUp 0.4s ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .file-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-align: left;
+    }
+
+    .file-icon {
+      font-size: 36px;
+      color: #dc2626;
+    }
+
+    .file-details h4 {
+      font-size: 16px;
+      color: #1e293b;
+      margin-bottom: 4px;
+    }
+
+    .file-details p {
+      font-size: 14px;
+      color: var(--gray);
+    }
+
+    .remove-file {
+      background: #ef4444;
+      color: white;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
+
+    .remove-file:hover {
+      background: #dc2626;
+    }
+
+    button#uploadBtn {
       margin-top: 24px;
       padding: 12px 32px;
       background: var(--primary);
@@ -120,18 +175,18 @@
       font-size: 16px;
       font-weight: 500;
       cursor: pointer;
-      transition: background 0.3s ease, transform 0.2s ease;
+      transition: all 0.3s ease;
     }
 
-    button:hover {
+    button#uploadBtn:hover {
       background: var(--primary-dark);
     }
 
-    button:active {
+    button#uploadBtn:active {
       transform: scale(0.98);
     }
 
-    button:disabled {
+    button#uploadBtn:disabled {
       background: #9ca3af;
       cursor: not-allowed;
     }
@@ -192,7 +247,22 @@
       <div class="upload-subtext">or click to browse (Max 7MB)</div>
       <input type="file" id="file" accept="application/pdf" />
     </div>
-    <button id="uploadBtn" onclick="upload()" disabled>Upload PDF</button>
+
+    <!-- File preview -->
+    <div class="file-preview" id="filePreview">
+      <div class="file-info">
+        <i class="fas fa-file-pdf file-icon"></i>
+        <div class="file-details">
+          <h4 id="fileName">document.pdf</h4>
+          <p id="fileSize">0 KB</p>
+        </div>
+      </div>
+      <button class="remove-file" id="removeFile" title="Remove file">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <button id="uploadBtn" disabled>Upload PDF</button>
     <div class="msg" id="msg"></div>
   </div>
 
@@ -201,15 +271,42 @@
     const fileInput = document.getElementById('file');
     const uploadBtn = document.getElementById('uploadBtn');
     const msg = document.getElementById('msg');
+    const filePreview = document.getElementById('filePreview');
+    const fileNameEl = document.getElementById('fileName');
+    const fileSizeEl = document.getElementById('fileSize');
+    const removeFileBtn = document.getElementById('removeFile');
 
-    // Enable button when file is selected
-    fileInput.addEventListener('change', () => {
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    function updateFilePreview() {
       if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        fileNameEl.textContent = file.name;
+        fileSizeEl.textContent = formatFileSize(file.size);
+        filePreview.style.display = 'flex';
         uploadBtn.disabled = false;
+      } else {
+        filePreview.style.display = 'none';
+        uploadBtn.disabled = true;
       }
-    });
+    }
 
-    // Drag & drop effects
+    function clearFile() {
+      fileInput.value = '';
+      updateFilePreview();
+    }
+
+    // Event listeners
+    fileInput.addEventListener('change', updateFilePreview);
+
+    removeFileBtn.addEventListener('click', clearFile);
+
     uploadArea.addEventListener('dragover', (e) => {
       e.preventDefault();
       uploadArea.classList.add('dragover');
@@ -224,9 +321,7 @@
       uploadArea.classList.remove('dragover');
       if (e.dataTransfer.files.length) {
         fileInput.files = e.dataTransfer.files;
-        if (fileInput.files.length > 0) {
-          uploadBtn.disabled = false;
-        }
+        updateFilePreview();
       }
     });
 
@@ -267,6 +362,7 @@
           try {
             data = JSON.parse(text);
             msg.innerHTML = `<span class="success">${data.message || 'Upload successful!'}</span>`;
+            clearFile(); // Optional: clear after successful upload
           } catch {
             msg.innerHTML = '<span class="error">Upload failed (invalid response)</span>';
             console.error("Raw response:", text);

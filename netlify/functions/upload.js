@@ -1,14 +1,15 @@
-const fs = require("fs");
-const path = require("path");
-const formidable = require("formidable");
+import formidable from "formidable";
+import fs from "fs";
+import path from "path";
 
-exports.handler = async (event) => {
+export const handler = async (event) => {
+  const form = formidable({
+    multiples: false,
+    maxFileSize: 50 * 1024 * 1024
+  });
+
   return new Promise((resolve) => {
-    const form = new formidable.IncomingForm({
-      maxFileSize: 50 * 1024 * 1024
-    });
-
-    form.parse(event, (err, fields, files) => {
+    form.parse(event, async (err, fields, files) => {
       if (err) {
         resolve({
           statusCode: 400,
@@ -17,12 +18,11 @@ exports.handler = async (event) => {
         return;
       }
 
-      const file = files.file;
+      const file = files.file[0];
       const data = fs.readFileSync(file.filepath);
 
       const outputPath = path.join(
         process.cwd(),
-        "public",
         "menu.pdf"
       );
 
@@ -30,9 +30,7 @@ exports.handler = async (event) => {
 
       resolve({
         statusCode: 200,
-        body: JSON.stringify({
-          message: "PDF updated successfully ✅"
-        })
+        body: JSON.stringify({ message: "PDF updated successfully ✅" })
       });
     });
   });

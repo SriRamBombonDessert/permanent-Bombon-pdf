@@ -2,118 +2,287 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Upload PDF</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
+    :root {
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --success: #10b981;
+      --error: #ef4444;
+      --gray: #6b7280;
+      --light: #f3f4f6;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+      min-height: 100vh;
       display: flex;
-      height: 100vh;
       align-items: center;
       justify-content: center;
+      padding: 20px;
     }
+
     .card {
       background: white;
-      padding: 30px;
-      border-radius: 10px;
-      width: 350px;
+      padding: 40px;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 420px;
       text-align: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,.1);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      animation: fadeIn 0.8s ease-out;
     }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      font-size: 28px;
+      margin-bottom: 24px;
+      color: #1e293b;
+    }
+
+    .upload-area {
+      border: 2px dashed var(--primary);
+      border-radius: 12px;
+      padding: 40px 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      background: #f8faff;
+    }
+
+    .upload-area:hover {
+      border-color: var(--primary-dark);
+      background: #eff6ff;
+    }
+
+    .upload-area.dragover {
+      border-color: var(--primary-dark);
+      background: #dbeafe;
+      transform: scale(1.02);
+    }
+
+    .icon {
+      font-size: 48px;
+      color: var(--primary);
+      margin-bottom: 16px;
+      animation: float 3s infinite ease-in-out;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .upload-text {
+      font-size: 18px;
+      color: var(--gray);
+      margin-bottom: 8px;
+    }
+
+    .upload-subtext {
+      font-size: 14px;
+      color: #9ca3af;
+    }
+
     input[type="file"] {
-      margin: 20px 0;
-    }
-    button {
-      padding: 10px 20px;
-      background: #2563eb;
-      color: white;
-      border: none;
-      border-radius: 6px;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      opacity: 0;
       cursor: pointer;
     }
-    button:hover {
-      background: #1d4ed8;
+
+    button {
+      margin-top: 24px;
+      padding: 12px 32px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease;
     }
+
+    button:hover {
+      background: var(--primary-dark);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    button:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+
     .msg {
-      margin-top: 15px;
+      margin-top: 24px;
+      font-size: 16px;
+      min-height: 24px;
+      font-weight: 500;
+    }
+
+    .msg.success {
+      color: var(--success);
+      animation: pulse 0.6s ease;
+    }
+
+    .msg.error {
+      color: var(--error);
+      animation: shake 0.5s ease;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      75% { transform: translateX(8px); }
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
 <body>
+  <div class="card">
+    <h2>Upload Your PDF</h2>
+    <div class="upload-area" id="uploadArea">
+      <i class="fas fa-cloud-upload-alt icon"></i>
+      <div class="upload-text">Drag & drop your PDF here</div>
+      <div class="upload-subtext">or click to browse (Max 7MB)</div>
+      <input type="file" id="file" accept="application/pdf" />
+    </div>
+    <button id="uploadBtn" onclick="upload()" disabled>Upload PDF</button>
+    <div class="msg" id="msg"></div>
+  </div>
 
-<div class="card">
-  <h2>Upload PDF</h2>
-  <p>Max size: 50 MB</p>
+  <script>
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('file');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const msg = document.getElementById('msg');
 
-  <input type="file" id="file" accept="application/pdf" />
-  <br />
-  <button onclick="upload()">Upload</button>
-
-  <div class="msg" id="msg"></div>
-</div>
-
-<script>
-async function upload() {
-  const fileInput = document.getElementById("file");
-  const msg = document.getElementById("msg");
-
-  if (!fileInput.files.length) {
-    msg.innerText = "Please select a PDF file";
-    return;
-  }
-
-  const file = fileInput.files[0];
-
-if (file.size > 7 * 1024 * 1024) {
-  msg.innerText = "File must be ≤ 7MB";
-  return;
-}
-
-
-  msg.innerText = "Reading file...";
-
-  const reader = new FileReader();
-
-  reader.onload = async () => {
-    // Extract BASE64 part only
-    const base64 = reader.result.split(",")[1];
-
-    msg.innerText = "Uploading...";
-
-    const res = await fetch("/.netlify/functions/githubUpload", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        file: base64
-      })
+    // Enable button when file is selected
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length > 0) {
+        uploadBtn.disabled = false;
+      }
     });
 
-   const text = await res.text();
-try {
-  const data = JSON.parse(text);
-  msg.innerText = data.message;
-  console.log("Response:", data);
-} catch {
-  msg.innerText = "Upload failed (invalid response)";
-  console.error("Raw response:", text);
-}
+    // Drag & drop effects
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.classList.add('dragover');
+    });
 
-  };
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.classList.remove('dragover');
+    });
 
-  reader.onerror = () => {
-    msg.innerText = "Failed to read file";
-  };
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+      if (e.dataTransfer.files.length) {
+        fileInput.files = e.dataTransfer.files;
+        if (fileInput.files.length > 0) {
+          uploadBtn.disabled = false;
+        }
+      }
+    });
 
-  reader.readAsDataURL(file);
-}
-</script>
+    async function upload() {
+      if (!fileInput.files.length) {
+        msg.innerHTML = '<span class="error">Please select a PDF file</span>';
+        return;
+      }
 
+      const file = fileInput.files[0];
 
+      if (!file.type.includes('pdf')) {
+        msg.innerHTML = '<span class="error">Only PDF files are allowed</span>';
+        return;
+      }
+
+      if (file.size > 7 * 1024 * 1024) {
+        msg.innerHTML = '<span class="error">File must be ≤ 7MB</span>';
+        return;
+      }
+
+      msg.innerHTML = '<span><div class="spinner"></div>Reading file...</span>';
+
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64 = reader.result.split(",")[1];
+        msg.innerHTML = '<span><div class="spinner"></div>Uploading...</span>';
+
+        try {
+          const res = await fetch("/.netlify/functions/githubUpload", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ file: base64 })
+          });
+
+          const text = await res.text();
+          let data;
+          try {
+            data = JSON.parse(text);
+            msg.innerHTML = `<span class="success">${data.message || 'Upload successful!'}</span>`;
+          } catch {
+            msg.innerHTML = '<span class="error">Upload failed (invalid response)</span>';
+            console.error("Raw response:", text);
+          }
+        } catch (err) {
+          msg.innerHTML = '<span class="error">Upload failed. Please try again.</span>';
+          console.error(err);
+        }
+      };
+
+      reader.onerror = () => {
+        msg.innerHTML = '<span class="error">Failed to read file</span>';
+      };
+
+      reader.readAsDataURL(file);
+    }
+  </script>
 </body>
 </html>
-
-
-
-

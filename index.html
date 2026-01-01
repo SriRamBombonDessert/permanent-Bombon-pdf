@@ -225,7 +225,7 @@
       width: 20px;
       height: 20px;
       border: 3px solid #f3f3f3;
-      border-top: 3px solid var(--primary);
+      border-top: 3px solid white;
       border-radius: 50%;
       animation: spin 1s linear infinite;
       margin-right: 8px;
@@ -285,21 +285,24 @@
     }
 
     function updateFilePreview() {
-      if (fileInput.files.length > 0) {
+      if (fileInput.files && fileInput.files.length > 0) {
         const file = fileInput.files[0];
         fileNameEl.textContent = file.name;
         fileSizeEl.textContent = formatFileSize(file.size);
         filePreview.style.display = 'flex';
         uploadBtn.disabled = false;
+        uploadBtn.textContent = 'Upload PDF';
       } else {
         filePreview.style.display = 'none';
         uploadBtn.disabled = true;
+        uploadBtn.textContent = 'Upload PDF';
       }
     }
 
     function clearFile() {
       fileInput.value = '';
       updateFilePreview();
+      msg.innerHTML = '';
     }
 
     // Event listeners
@@ -321,7 +324,7 @@
       uploadArea.classList.remove('dragover');
       if (e.dataTransfer.files.length) {
         fileInput.files = e.dataTransfer.files;
-        updateFilePreview();
+        updateFilePreview();  // Critical fix: ensures button enables on drop
       }
     });
 
@@ -343,12 +346,15 @@
         return;
       }
 
+      // Disable button and show uploading state
+      uploadBtn.disabled = true;
+      uploadBtn.innerHTML = '<div class="spinner"></div>Uploading...';
       msg.innerHTML = '<span><div class="spinner"></div>Reading file...</span>';
 
       const reader = new FileReader();
       reader.onload = async () => {
         const base64 = reader.result.split(",")[1];
-        msg.innerHTML = '<span><div class="spinner"></div>Uploading...</span>';
+        msg.innerHTML = '<span><div class="spinner"></div>Uploading to server...</span>';
 
         try {
           const res = await fetch("/.netlify/functions/githubUpload", {
@@ -362,19 +368,25 @@
           try {
             data = JSON.parse(text);
             msg.innerHTML = `<span class="success">${data.message || 'Upload successful!'}</span>`;
-            clearFile(); // Optional: clear after successful upload
+            clearFile();  // Reset after success
           } catch {
             msg.innerHTML = '<span class="error">Upload failed (invalid response)</span>';
             console.error("Raw response:", text);
+            uploadBtn.disabled = false;
+            uploadBtn.textContent = 'Upload PDF';
           }
         } catch (err) {
           msg.innerHTML = '<span class="error">Upload failed. Please try again.</span>';
           console.error(err);
+          uploadBtn.disabled = false;
+          uploadBtn.textContent = 'Upload PDF';
         }
       };
 
       reader.onerror = () => {
         msg.innerHTML = '<span class="error">Failed to read file</span>';
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = 'Upload PDF';
       };
 
       reader.readAsDataURL(file);
